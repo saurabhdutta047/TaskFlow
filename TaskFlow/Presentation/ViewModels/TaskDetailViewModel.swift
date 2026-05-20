@@ -7,7 +7,7 @@ final class TaskDetailViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isSaved = false
     
-    private let task: Task?
+    private let task: TaskItem?
     private let addTaskUseCase: AddTaskUseCase
     private let updateTaskUseCase: UpdateTaskUseCase
     
@@ -16,7 +16,7 @@ final class TaskDetailViewModel: ObservableObject {
     }
     
     init(
-        task: Task?,
+        task: TaskItem?,
         addTaskUseCase: AddTaskUseCase,
         updateTaskUseCase: UpdateTaskUseCase
     ) {
@@ -41,7 +41,7 @@ final class TaskDetailViewModel: ObservableObject {
                 updatedTask.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
                 try await updateTaskUseCase.execute(updatedTask)
             } else {
-                let newTask = Task(title: title.trimmingCharacters(in: .whitespacesAndNewlines))
+                let newTask = TaskItem(title: title.trimmingCharacters(in: .whitespacesAndNewlines))
                 try await addTaskUseCase.execute(newTask)
             }
             isSaved = true

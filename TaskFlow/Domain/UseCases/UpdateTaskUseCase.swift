@@ -1,7 +1,7 @@
 import Foundation
 
 protocol UpdateTaskUseCase {
-    func execute(_ task: Task) async throws
+    func execute(_ task: TaskItem) async throws
 }
 
 final class UpdateTaskUseCaseImpl: UpdateTaskUseCase {
@@ -11,7 +11,7 @@ final class UpdateTaskUseCaseImpl: UpdateTaskUseCase {
         self.repository = repository
     }
     
-    func execute(_ task: Task) async throws {
+    func execute(_ task: TaskItem) async throws {
         try await repository.updateTask(task)
     }
 }

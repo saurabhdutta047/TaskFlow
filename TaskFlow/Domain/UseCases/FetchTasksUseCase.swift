@@ -1,7 +1,7 @@
 import Foundation
 
 protocol FetchTasksUseCase {
-    func execute() async throws -> [Task]
+    func execute() async throws -> [TaskItem]
 }
 
 final class FetchTasksUseCaseImpl: FetchTasksUseCase {
@@ -11,7 +11,7 @@ final class FetchTasksUseCaseImpl: FetchTasksUseCase {
         self.repository = repository
     }
     
-    func execute() async throws -> [Task] {
+    func execute() async throws -> [TaskItem] {
         return try await repository.fetchTasks()
     }
 }

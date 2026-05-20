@@ -1,7 +1,7 @@
 import Foundation
 
 protocol DeleteTaskUseCase {
-    func execute(_ task: Task) async throws
+    func execute(_ task: TaskItem) async throws
 }
 
 final class DeleteTaskUseCaseImpl: DeleteTaskUseCase {
@@ -11,7 +11,7 @@ final class DeleteTaskUseCaseImpl: DeleteTaskUseCase {
         self.repository = repository
     }
     
-    func execute(_ task: Task) async throws {
+    func execute(_ task: TaskItem) async throws {
         try await repository.deleteTask(task)
     }
 }
