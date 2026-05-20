@@ -3,7 +3,7 @@ import Combine
 
 @MainActor
 final class TaskListViewModel: ObservableObject {
-    @Published var tasks: [Task] = []
+    @Published var tasks: [TaskItem] = []
     @Published var filter: TaskFilter = .all
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -25,7 +25,7 @@ final class TaskListViewModel: ObservableObject {
         self.deleteTaskUseCase = deleteTaskUseCase
     }
     
-    var filteredTasks: [Task] {
+    var filteredTasks: [TaskItem] {
         switch filter {
         case .all:
             return tasks.sorted { $0.createdAt > $1.createdAt }
@@ -48,7 +48,7 @@ final class TaskListViewModel: ObservableObject {
         }
     }
     
-    func toggleTaskCompletion(_ task: Task) async {
+    func toggleTaskCompletion(_ task: TaskItem) async {
         var updatedTask = task
         updatedTask.isCompleted.toggle()
         
@@ -61,7 +61,7 @@ final class TaskListViewModel: ObservableObject {
         }
     }
     
-    func deleteTask(_ task: Task) async {
+    func deleteTask(_ task: TaskItem) async {
         do {
             try await deleteTaskUseCase.execute(task)
             await loadTasks()

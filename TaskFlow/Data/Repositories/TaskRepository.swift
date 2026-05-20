@@ -7,17 +7,17 @@ final class TaskRepository: TaskRepositoryProtocol {
         self.storageService = storageService
     }
     
-    func fetchTasks() async throws -> [Task] {
+    func fetchTasks() async throws -> [TaskItem] {
         return try storageService.fetchTasks()
     }
     
-    func addTask(_ task: Task) async throws {
+    func addTask(_ task: TaskItem) async throws {
         var tasks = try storageService.fetchTasks()
         tasks.append(task)
         try storageService.saveTasks(tasks)
     }
     
-    func updateTask(_ task: Task) async throws {
+    func updateTask(_ task: TaskItem) async throws {
         var tasks = try storageService.fetchTasks()
         if let index = tasks.firstIndex(where: { $0.id == task.id }) {
             tasks[index] = task
@@ -25,7 +25,7 @@ final class TaskRepository: TaskRepositoryProtocol {
         }
     }
     
-    func deleteTask(_ task: Task) async throws {
+    func deleteTask(_ task: TaskItem) async throws {
         var tasks = try storageService.fetchTasks()
         tasks.removeAll { $0.id == task.id }
         try storageService.saveTasks(tasks)

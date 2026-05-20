@@ -19,7 +19,7 @@ final class AppCoordinator: Coordinator {
         return AnyView(view)
     }
     
-    func showTaskDetail(for task: Task?) -> AnyView {
+    func showTaskDetail(for task: TaskItem?) -> AnyView {
         let viewModel = dependencyContainer.makeTaskDetailViewModel(task: task)
         let view = TaskDetailView(viewModel: viewModel, coordinator: self)
         return AnyView(view)

@@ -101,19 +101,19 @@ struct TaskListView: View {
 }
 
 struct TaskRowView: View {
-    let task: Task
+    let task: TaskItem
     let onToggle: () async -> Void
     let onTap: () -> Void
     let onDelete: () async -> Void
     
     var body: some View {
         HStack {
-//            Button(action: { Task { await onToggle() } }) {
-//                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-//                    .font(.title2)
-//                    .foregroundColor(task.isCompleted ? .green : .gray)
-//            }
-//            .buttonStyle(.plain)
+            Button(action: { Task { await onToggle() } }) {
+                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundColor(task.isCompleted ? .green : .gray)
+            }
+            .buttonStyle(.plain)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.title)
@@ -132,11 +132,11 @@ struct TaskRowView: View {
             }
             .buttonStyle(.plain)
             
-//            Button(action: { Task { await onDelete() } }) {
-//                Image(systemName: "trash")
-//                    .foregroundColor(.red)
-//            }
-//            .buttonStyle(.plain)
+            Button(action: { Task { await onDelete() } }) {
+                Image(systemName: "trash")
+                    .foregroundColor(.red)
+            }
+            .buttonStyle(.plain)
         }
         .contentShape(Rectangle())
     }

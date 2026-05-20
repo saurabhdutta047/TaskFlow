@@ -10,57 +10,55 @@ struct TaskDetailView: View {
         self.coordinator = coordinator
     }
     
-    var body: some View {
-//        Form {
-//            Section {
-//                TextField("Task title", text: $viewModel.title)
-//                    .textFieldStyle(.plain)
-//            } header: {
-//                Text(viewModel.isEditMode ? "Edit Task" : "New Task")
-//            }
-//            
-//            Section {
-//                Button(action: {
-//                    Task {
-//                        await viewModel.saveTask()
-//                        if viewModel.isSaved {
-//                            dismiss()
-//                        }
-//                    }
-//                }) {
-//                    HStack {
-//                        Spacer()
-//                        if viewModel.isSaving {
-//                            ProgressView()
-//                                .progressViewStyle(.circular)
-//                        } else {
-//                            Text(viewModel.isEditMode ? "Update Task" : "Add Task")
-//                                .fontWeight(.semibold)
-//                        }
-//                        Spacer()
-//                    }
-//                }
-//                .disabled(viewModel.isSaving || viewModel.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-//            }
-//        }
-        Section{
-            
+    @ViewBuilder
+    private var formContent: some View {
+        Section(header: Text(viewModel.isEditMode ? "Edit Task" : "New Task")) {
+            TextField("Task title", text: $viewModel.title)
+                .textFieldStyle(.plain)
         }
-        .navigationTitle(viewModel.isEditMode ? "Edit Task" : "New Task")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Cancel") {
-                    dismiss()
+        
+        Section {
+            Button(action: {
+                Task {
+                    await viewModel.saveTask()
+                    if viewModel.isSaved {
+                        dismiss()
+                    }
+                }
+            }) {
+                HStack {
+                    Spacer()
+                    if viewModel.isSaving {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                    } else {
+                        Text(viewModel.isEditMode ? "Update Task" : "Add Task")
+                            .fontWeight(.semibold)
+                    }
+                    Spacer()
                 }
             }
+            .disabled(viewModel.isSaving || viewModel.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
-        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
-            Button("OK") { viewModel.errorMessage = nil }
-        } message: {
-            if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
+    }
+    
+    var body: some View {
+        Form(content: { formContent })
+            .navigationTitle(viewModel.isEditMode ? "Edit Task" : "New Task")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
             }
-        }
+            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+                Button("OK") { viewModel.errorMessage = nil }
+            } message: {
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                }
+            }
     }
 }

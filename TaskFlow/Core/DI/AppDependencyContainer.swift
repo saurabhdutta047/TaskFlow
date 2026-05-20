@@ -39,7 +39,7 @@ final class AppDependencyContainer {
         )
     }
     
-    @MainActor func makeTaskDetailViewModel(task: Task?) -> TaskDetailViewModel {
+    @MainActor func makeTaskDetailViewModel(task: TaskItem?) -> TaskDetailViewModel {
         TaskDetailViewModel(
             task: task,
             addTaskUseCase: addTaskUseCase,

@@ -1,8 +1,8 @@
 import Foundation
 
 protocol TaskStorageServiceProtocol {
-    func fetchTasks() throws -> [Task]
-    func saveTasks(_ tasks: [Task]) throws
+    func fetchTasks() throws -> [TaskItem]
+    func saveTasks(_ tasks: [TaskItem]) throws
 }
 
 final class TaskStorageService: TaskStorageServiceProtocol {
@@ -13,14 +13,14 @@ final class TaskStorageService: TaskStorageServiceProtocol {
         self.userDefaults = userDefaults
     }
     
-    func fetchTasks() throws -> [Task] {
+    func fetchTasks() throws -> [TaskItem] {
         guard let data = userDefaults.data(forKey: tasksKey) else {
             return []
         }
-        return try JSONDecoder().decode([Task].self, from: data)
+        return try JSONDecoder().decode([TaskItem].self, from: data)
     }
     
-    func saveTasks(_ tasks: [Task]) throws {
+    func saveTasks(_ tasks: [TaskItem]) throws {
         let data = try JSONEncoder().encode(tasks)
         userDefaults.set(data, forKey: tasksKey)
     }
