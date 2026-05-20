@@ -23,7 +23,7 @@ struct TaskListView: View {
                     taskListView
                 }
             }
-            .navigationTitle("TaskFlow")
+            .navigationTitle("Task Flow")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingAddTask = true }) {
@@ -108,12 +108,12 @@ struct TaskRowView: View {
     
     var body: some View {
         HStack {
-            Button(action: { Task { await onToggle() } }) {
-                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundColor(task.isCompleted ? .green : .gray)
-            }
-            .buttonStyle(.plain)
+//            Button(action: { Task { await onToggle() } }) {
+//                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+//                    .font(.title2)
+//                    .foregroundColor(task.isCompleted ? .green : .gray)
+//            }
+//            .buttonStyle(.plain)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.title)
@@ -132,11 +132,11 @@ struct TaskRowView: View {
             }
             .buttonStyle(.plain)
             
-            Button(action: { Task { await onDelete() } }) {
-                Image(systemName: "trash")
-                    .foregroundColor(.red)
-            }
-            .buttonStyle(.plain)
+//            Button(action: { Task { await onDelete() } }) {
+//                Image(systemName: "trash")
+//                    .foregroundColor(.red)
+//            }
+//            .buttonStyle(.plain)
         }
         .contentShape(Rectangle())
     }

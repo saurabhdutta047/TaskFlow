@@ -11,37 +11,40 @@ struct TaskDetailView: View {
     }
     
     var body: some View {
-        Form {
-            Section {
-                TextField("Task title", text: $viewModel.title)
-                    .textFieldStyle(.plain)
-            } header: {
-                Text(viewModel.isEditMode ? "Edit Task" : "New Task")
-            }
+//        Form {
+//            Section {
+//                TextField("Task title", text: $viewModel.title)
+//                    .textFieldStyle(.plain)
+//            } header: {
+//                Text(viewModel.isEditMode ? "Edit Task" : "New Task")
+//            }
+//            
+//            Section {
+//                Button(action: {
+//                    Task {
+//                        await viewModel.saveTask()
+//                        if viewModel.isSaved {
+//                            dismiss()
+//                        }
+//                    }
+//                }) {
+//                    HStack {
+//                        Spacer()
+//                        if viewModel.isSaving {
+//                            ProgressView()
+//                                .progressViewStyle(.circular)
+//                        } else {
+//                            Text(viewModel.isEditMode ? "Update Task" : "Add Task")
+//                                .fontWeight(.semibold)
+//                        }
+//                        Spacer()
+//                    }
+//                }
+//                .disabled(viewModel.isSaving || viewModel.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+//            }
+//        }
+        Section{
             
-            Section {
-                Button(action: {
-                    Swift.Task {
-                        await viewModel.saveTask()
-                        if viewModel.isSaved {
-                            dismiss()
-                        }
-                    }
-                }) {
-                    HStack {
-                        Spacer()
-                        if viewModel.isSaving {
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                        } else {
-                            Text(viewModel.isEditMode ? "Update Task" : "Add Task")
-                                .fontWeight(.semibold)
-                        }
-                        Spacer()
-                    }
-                }
-                .disabled(viewModel.isSaving || viewModel.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
         }
         .navigationTitle(viewModel.isEditMode ? "Edit Task" : "New Task")
         .navigationBarTitleDisplayMode(.inline)
