@@ -37,8 +37,9 @@ final class TaskListViewModel: ObservableObject {
     }
     
     func loadTasks() async {
-        isLoading = true
-        defer { isLoading = false }
+        let isInitialLoad = tasks.isEmpty
+        if isInitialLoad { isLoading = true }
+        defer { if isInitialLoad { isLoading = false } }
         
         do {
             tasks = try await fetchTasksUseCase.execute()
