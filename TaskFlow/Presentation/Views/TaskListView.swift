@@ -31,7 +31,9 @@ struct TaskListView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingAddTask) {
+            .sheet(isPresented: $showingAddTask, onDismiss: {
+                Task { await viewModel.loadTasks() }
+            }) {
                 NavigationView {
                     coordinator.showTaskDetail(for: nil)
                 }
