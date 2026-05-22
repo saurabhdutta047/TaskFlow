@@ -1,145 +1,232 @@
-import XCTest
+import Testing
+import Foundation
 @testable import TaskFlow
 
+@Suite("TaskListViewModel")
 @MainActor
-final class TaskListViewModelTests: XCTestCase {
-    
-    var viewModel: TaskListViewModel!
-    var mockFetchUseCase: MockFetchTasksUseCase!
-    var mockAddUseCase: MockAddTaskUseCase!
-    var mockUpdateUseCase: MockUpdateTaskUseCase!
-    var mockDeleteUseCase: MockDeleteTaskUseCase!
-    
-    override func setUp() {
-        super.setUp()
-        mockFetchUseCase = MockFetchTasksUseCase()
-        mockAddUseCase = MockAddTaskUseCase()
-        mockUpdateUseCase = MockUpdateTaskUseCase()
-        mockDeleteUseCase = MockDeleteTaskUseCase()
-        
-        viewModel = TaskListViewModel(
-            fetchTasksUseCase: mockFetchUseCase,
-            addTaskUseCase: mockAddUseCase,
-            updateTaskUseCase: mockUpdateUseCase,
-            deleteTaskUseCase: mockDeleteUseCase
+struct TaskListViewModelTests {
+
+    private func makeViewModel(
+        fetchTasks: [TaskItem] = [],
+        shouldThrowError: Bool = false
+    ) -> (TaskListViewModel, MockFetchUseCase, MockAddUseCase, MockUpdateUseCase, MockDeleteUseCase) {
+        let fetch = MockFetchUseCase()
+        fetch.tasksToReturn = fetchTasks
+        fetch.shouldThrowError = shouldThrowError
+        let add = MockAddUseCase()
+        let update = MockUpdateUseCase()
+        let delete = MockDeleteUseCase()
+
+        let vm = TaskListViewModel(
+            fetchTasksUseCase: fetch,
+            addTaskUseCase: add,
+            updateTaskUseCase: update,
+            deleteTaskUseCase: delete
         )
+        return (vm, fetch, add, update, delete)
     }
-    
-    func testLoadTasksSuccess() async {
-        let expectedTasks = [
-            Task(title: "Task 1", isCompleted: false),
-            Task(title: "Task 2", isCompleted: true)
-        ]
-        mockFetchUseCase.tasksToReturn = expectedTasks
-        
-        await viewModel.loadTasks()
-        
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertEqual(viewModel.tasks.count, 2)
-        XCTAssertNil(viewModel.errorMessage)
-    }
-    
-    func testLoadTasksFailure() async {
-        mockFetchUseCase.shouldThrowError = true
-        
-        await viewModel.loadTasks()
-        
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertTrue(viewModel.tasks.isEmpty)
-        XCTAssertNotNil(viewModel.errorMessage)
-    }
-    
-    func testFilteredTasksAll() async {
+
+    // MARK: - loadTasks
+
+    @Test("Load tasks populates tasks array")
+    func loadTasksSuccess() async {
         let tasks = [
-            Task(title: "Task 1", isCompleted: false),
-            Task(title: "Task 2", isCompleted: true)
+            TaskItem(title: "Task 1"),
+            TaskItem(title: "Task 2", isCompleted: true)
         ]
-        mockFetchUseCase.tasksToReturn = tasks
-        await viewModel.loadTasks()
-        
-        viewModel.filter = .all
-        
-        XCTAssertEqual(viewModel.filteredTasks.count, 2)
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: tasks)
+
+        await vm.loadTasks()
+
+        #expect(vm.tasks.count == 2)
+        #expect(vm.isLoading == false)
+        #expect(vm.errorMessage == nil)
     }
-    
-    func testFilteredTasksActive() async {
+
+    @Test("Load tasks sets error message on failure")
+    func loadTasksFailure() async {
+        let (vm, _, _, _, _) = makeViewModel(shouldThrowError: true)
+
+        await vm.loadTasks()
+
+        #expect(vm.tasks.isEmpty)
+        #expect(vm.isLoading == false)
+        #expect(vm.errorMessage != nil)
+    }
+
+    @Test("Initial load shows loading state")
+    func initialLoadShowsLoading() async {
+        let (vm, _, _, _, _) = makeViewModel()
+
+        #expect(vm.isLoading == false)
+        #expect(vm.tasks.isEmpty)
+    }
+
+    // MARK: - filteredTasks
+
+    @Test("Filter .all returns all tasks sorted by date descending")
+    func filterAll() async {
+        let older = TaskItem(title: "Older", createdAt: Date(timeIntervalSince1970: 1000))
+        let newer = TaskItem(title: "Newer", createdAt: Date(timeIntervalSince1970: 2000))
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: [older, newer])
+
+        await vm.loadTasks()
+        vm.filter = .all
+
+        #expect(vm.filteredTasks.count == 2)
+        #expect(vm.filteredTasks[0].title == "Newer")
+        #expect(vm.filteredTasks[1].title == "Older")
+    }
+
+    @Test("Filter .active returns only incomplete tasks")
+    func filterActive() async {
         let tasks = [
-            Task(title: "Task 1", isCompleted: false),
-            Task(title: "Task 2", isCompleted: true)
+            TaskItem(title: "Active", isCompleted: false),
+            TaskItem(title: "Done", isCompleted: true)
         ]
-        mockFetchUseCase.tasksToReturn = tasks
-        await viewModel.loadTasks()
-        
-        viewModel.filter = .active
-        
-        XCTAssertEqual(viewModel.filteredTasks.count, 1)
-        XCTAssertFalse(viewModel.filteredTasks[0].isCompleted)
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: tasks)
+
+        await vm.loadTasks()
+        vm.filter = .active
+
+        #expect(vm.filteredTasks.count == 1)
+        #expect(vm.filteredTasks[0].isCompleted == false)
     }
-    
-    func testFilteredTasksCompleted() async {
+
+    @Test("Filter .completed returns only completed tasks")
+    func filterCompleted() async {
         let tasks = [
-            Task(title: "Task 1", isCompleted: false),
-            Task(title: "Task 2", isCompleted: true)
+            TaskItem(title: "Active", isCompleted: false),
+            TaskItem(title: "Done", isCompleted: true)
         ]
-        mockFetchUseCase.tasksToReturn = tasks
-        await viewModel.loadTasks()
-        
-        viewModel.filter = .completed
-        
-        XCTAssertEqual(viewModel.filteredTasks.count, 1)
-        XCTAssertTrue(viewModel.filteredTasks[0].isCompleted)
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: tasks)
+
+        await vm.loadTasks()
+        vm.filter = .completed
+
+        #expect(vm.filteredTasks.count == 1)
+        #expect(vm.filteredTasks[0].isCompleted == true)
     }
-    
-    func testToggleTaskCompletion() async {
-        let task = Task(title: "Task 1", isCompleted: false)
-        mockFetchUseCase.tasksToReturn = [task]
-        await viewModel.loadTasks()
-        
-        await viewModel.toggleTaskCompletion(task)
-        
-        XCTAssertTrue(mockUpdateUseCase.called)
+
+    @Test("Filter returns empty when no tasks match")
+    func filterEmpty() async {
+        let tasks = [TaskItem(title: "Active", isCompleted: false)]
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: tasks)
+
+        await vm.loadTasks()
+        vm.filter = .completed
+
+        #expect(vm.filteredTasks.isEmpty)
     }
-    
-    func testDeleteTask() async {
-        let task = Task(title: "Task 1")
-        mockFetchUseCase.tasksToReturn = [task]
-        await viewModel.loadTasks()
-        
-        await viewModel.deleteTask(task)
-        
-        XCTAssertTrue(mockDeleteUseCase.called)
+
+    // MARK: - toggleTaskCompletion
+
+    @Test("Toggle calls update use case with toggled completion")
+    func toggleCompletion() async {
+        let task = TaskItem(title: "Task", isCompleted: false)
+        let (vm, _, _, update, _) = makeViewModel(fetchTasks: [task])
+
+        await vm.loadTasks()
+        await vm.toggleTaskCompletion(task)
+
+        #expect(update.called == true)
+        #expect(update.lastTask?.isCompleted == true)
+    }
+
+    @Test("Toggle sets error on failure")
+    func toggleError() async {
+        let task = TaskItem(title: "Task", isCompleted: false)
+        let (vm, _, _, update, _) = makeViewModel(fetchTasks: [task])
+        update.shouldThrowError = true
+
+        await vm.loadTasks()
+        await vm.toggleTaskCompletion(task)
+
+        #expect(vm.errorMessage != nil)
+    }
+
+    // MARK: - deleteTask
+
+    @Test("Delete calls delete use case")
+    func deleteTask() async {
+        let task = TaskItem(title: "Task")
+        let (vm, _, _, _, delete) = makeViewModel(fetchTasks: [task])
+
+        await vm.loadTasks()
+        await vm.deleteTask(task)
+
+        #expect(delete.called == true)
+        #expect(delete.lastTask?.id == task.id)
+    }
+
+    @Test("Delete sets error on failure")
+    func deleteError() async {
+        let task = TaskItem(title: "Task")
+        let (vm, _, _, _, delete) = makeViewModel(fetchTasks: [task])
+        delete.shouldThrowError = true
+
+        await vm.loadTasks()
+        await vm.deleteTask(task)
+
+        #expect(vm.errorMessage != nil)
+    }
+
+    @Test("Default filter is .all")
+    func defaultFilter() {
+        let (vm, _, _, _, _) = makeViewModel()
+
+        #expect(vm.filter == .all)
     }
 }
 
-// MARK: - Mock Use Cases
-class MockFetchTasksUseCase: FetchTasksUseCase {
-    var tasksToReturn: [Task] = []
+// MARK: - Mocks
+
+final class MockFetchUseCase: FetchTasksUseCase, @unchecked Sendable {
+    var tasksToReturn: [TaskItem] = []
     var shouldThrowError = false
-    
-    func execute() async throws -> [Task] {
-        if shouldThrowError {
-            throw NSError(domain: "Test", code: 1, userInfo: nil)
-        }
+
+    func execute() async throws -> [TaskItem] {
+        if shouldThrowError { throw MockUseCaseError.testError }
         return tasksToReturn
     }
 }
 
-class MockAddTaskUseCase: AddTaskUseCase {
-    func execute(_ task: Task) async throws {}
-}
-
-class MockUpdateTaskUseCase: UpdateTaskUseCase {
+final class MockAddUseCase: AddTaskUseCase, @unchecked Sendable {
     var called = false
-    
-    func execute(_ task: Task) async throws {
+    var lastTask: TaskItem?
+    var shouldThrowError = false
+
+    func execute(_ task: TaskItem) async throws {
+        if shouldThrowError { throw MockUseCaseError.testError }
         called = true
+        lastTask = task
     }
 }
 
-class MockDeleteTaskUseCase: DeleteTaskUseCase {
+final class MockUpdateUseCase: UpdateTaskUseCase, @unchecked Sendable {
     var called = false
-    
-    func execute(_ task: Task) async throws {
+    var lastTask: TaskItem?
+    var shouldThrowError = false
+
+    func execute(_ task: TaskItem) async throws {
+        if shouldThrowError { throw MockUseCaseError.testError }
         called = true
+        lastTask = task
     }
+}
+
+final class MockDeleteUseCase: DeleteTaskUseCase, @unchecked Sendable {
+    var called = false
+    var lastTask: TaskItem?
+    var shouldThrowError = false
+
+    func execute(_ task: TaskItem) async throws {
+        if shouldThrowError { throw MockUseCaseError.testError }
+        called = true
+        lastTask = task
+    }
+}
+
+enum MockUseCaseError: Error {
+    case testError
 }
