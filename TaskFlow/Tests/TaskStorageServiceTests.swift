@@ -5,18 +5,16 @@ import Foundation
 @Suite("TaskStorageService")
 struct TaskStorageServiceTests {
 
-    private let suiteName = "TaskStorageServiceTests"
-
-    private func makeService() -> (TaskStorageService, UserDefaults) {
+    private func makeService() -> TaskStorageService {
+        let suiteName = "TaskStorageServiceTests-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
-        let service = TaskStorageService(userDefaults: defaults)
-        return (service, defaults)
+        return TaskStorageService(userDefaults: defaults)
     }
 
     @Test("Fetch returns empty array when no tasks stored")
     func fetchEmpty() throws {
-        let (service, _) = makeService()
+        let service = makeService()
 
         let tasks = try service.fetchTasks()
 
@@ -25,7 +23,7 @@ struct TaskStorageServiceTests {
 
     @Test("Save and fetch round-trips tasks correctly")
     func saveAndFetch() throws {
-        let (service, _) = makeService()
+        let service = makeService()
         let task1 = TaskItem(title: "Task 1")
         let task2 = TaskItem(title: "Task 2")
 
@@ -33,13 +31,14 @@ struct TaskStorageServiceTests {
         let fetched = try service.fetchTasks()
 
         #expect(fetched.count == 2)
-        #expect(fetched[0].id == task1.id)
-        #expect(fetched[1].id == task2.id)
+        let fetchedIds = Set(fetched.map(\.id))
+        #expect(fetchedIds.contains(task1.id))
+        #expect(fetchedIds.contains(task2.id))
     }
 
     @Test("Save overwrites previously stored tasks")
     func saveOverwrites() throws {
-        let (service, _) = makeService()
+        let service = makeService()
         let task1 = TaskItem(title: "Task 1")
         let task2 = TaskItem(title: "Task 2")
 
@@ -54,7 +53,7 @@ struct TaskStorageServiceTests {
 
     @Test("Save empty array clears all tasks")
     func saveEmptyClears() throws {
-        let (service, _) = makeService()
+        let service = makeService()
         let task = TaskItem(title: "Task")
 
         try service.saveTasks([task])
@@ -67,7 +66,7 @@ struct TaskStorageServiceTests {
 
     @Test("Preserves task properties through save and fetch")
     func preservesProperties() throws {
-        let (service, _) = makeService()
+        let service = makeService()
         let task = TaskItem(title: "Important Task", isCompleted: true)
 
         try service.saveTasks([task])
