@@ -1,11 +1,15 @@
 import SwiftUI
 
+struct TaskDetailSheetItem: Identifiable {
+    let id = UUID()
+    let task: TaskItem?
+}
+
 struct TaskListView: View {
     @StateObject private var viewModel: TaskListViewModel
     private let coordinator: AppCoordinator
     
-    @State private var showingDetail = false
-    @State private var taskToEdit: TaskItem?
+    @State private var sheetItem: TaskDetailSheetItem?
     
     init(viewModel: TaskListViewModel, coordinator: AppCoordinator) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -33,18 +37,17 @@ struct TaskListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        taskToEdit = nil
-                        showingDetail = true
+                        sheetItem = TaskDetailSheetItem(task: nil)
                     }) {
                         Image(systemName: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showingDetail, onDismiss: {
+            .sheet(item: $sheetItem, onDismiss: {
                 Task { await viewModel.loadTasks() }
-            }) {
+            }) { item in
                 NavigationView {
-                    coordinator.showTaskDetail(for: taskToEdit)
+                    coordinator.showTaskDetail(for: item.task)
                 }
             }
             .alert(
@@ -75,8 +78,7 @@ struct TaskListView: View {
                 .foregroundColor(.gray)
             if viewModel.filter == .all {
                 Button("Add your first task") {
-                    taskToEdit = nil
-                    showingDetail = true
+                    sheetItem = TaskDetailSheetItem(task: nil)
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -91,8 +93,7 @@ struct TaskListView: View {
                     task: task,
                     onToggle: { await viewModel.toggleTaskCompletion(task) },
                     onTap: {
-                        taskToEdit = task
-                        showingDetail = true
+                        sheetItem = TaskDetailSheetItem(task: task)
                     },
                     onDelete: { await viewModel.deleteTask(task) }
                 )
