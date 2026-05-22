@@ -1,10 +1,15 @@
 import SwiftUI
 
+struct TaskDetailSheetItem: Identifiable {
+    let id = UUID()
+    let task: TaskItem?
+}
+
 struct TaskListView: View {
     @StateObject private var viewModel: TaskListViewModel
     private let coordinator: AppCoordinator
     
-    @State private var showingAddTask = false
+    @State private var sheetItem: TaskDetailSheetItem?
     
     init(viewModel: TaskListViewModel, coordinator: AppCoordinator) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -17,25 +22,32 @@ struct TaskListView: View {
                 if viewModel.isLoading {
                     ProgressView("Loading tasks...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if viewModel.filteredTasks.isEmpty {
+                } else if viewModel.tasks.isEmpty {
                     emptyStateView
                 } else {
-                    taskListView
+                    filterPicker
+                    if viewModel.filteredTasks.isEmpty {
+                        emptyStateView
+                    } else {
+                        taskListContent
+                    }
                 }
             }
             .navigationTitle("Task Flow")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddTask = true }) {
+                    Button(action: {
+                        sheetItem = TaskDetailSheetItem(task: nil)
+                    }) {
                         Image(systemName: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showingAddTask, onDismiss: {
+            .sheet(item: $sheetItem, onDismiss: {
                 Task { await viewModel.loadTasks() }
-            }) {
+            }) { item in
                 NavigationView {
-                    coordinator.showTaskDetail(for: nil)
+                    coordinator.showTaskDetail(for: item.task)
                 }
             }
             .alert(
@@ -66,7 +78,7 @@ struct TaskListView: View {
                 .foregroundColor(.gray)
             if viewModel.filter == .all {
                 Button("Add your first task") {
-                    showingAddTask = true
+                    sheetItem = TaskDetailSheetItem(task: nil)
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -74,21 +86,20 @@ struct TaskListView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    private var taskListView: some View {
-        VStack {
-            filterPicker
-            List {
-                ForEach(viewModel.filteredTasks) { task in
-                    TaskRowView(
-                        task: task,
-                        onToggle: { await viewModel.toggleTaskCompletion(task) },
-                        onTap: { showingAddTask = true },
-                        onDelete: { await viewModel.deleteTask(task) }
-                    )
-                }
+    private var taskListContent: some View {
+        List {
+            ForEach(viewModel.filteredTasks) { task in
+                TaskRowView(
+                    task: task,
+                    onToggle: { await viewModel.toggleTaskCompletion(task) },
+                    onTap: {
+                        sheetItem = TaskDetailSheetItem(task: task)
+                    },
+                    onDelete: { await viewModel.deleteTask(task) }
+                )
             }
-            .listStyle(.insetGrouped)
         }
+        .listStyle(.insetGrouped)
     }
     
     private var filterPicker: some View {
