@@ -4,7 +4,8 @@ struct TaskListView: View {
     @StateObject private var viewModel: TaskListViewModel
     private let coordinator: AppCoordinator
     
-    @State private var showingAddTask = false
+    @State private var showingDetail = false
+    @State private var taskToEdit: TaskItem?
     
     init(viewModel: TaskListViewModel, coordinator: AppCoordinator) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -17,25 +18,33 @@ struct TaskListView: View {
                 if viewModel.isLoading {
                     ProgressView("Loading tasks...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if viewModel.filteredTasks.isEmpty {
+                } else if viewModel.tasks.isEmpty {
                     emptyStateView
                 } else {
-                    taskListView
+                    filterPicker
+                    if viewModel.filteredTasks.isEmpty {
+                        emptyStateView
+                    } else {
+                        taskListContent
+                    }
                 }
             }
             .navigationTitle("Task Flow")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddTask = true }) {
+                    Button(action: {
+                        taskToEdit = nil
+                        showingDetail = true
+                    }) {
                         Image(systemName: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showingAddTask, onDismiss: {
+            .sheet(isPresented: $showingDetail, onDismiss: {
                 Task { await viewModel.loadTasks() }
             }) {
                 NavigationView {
-                    coordinator.showTaskDetail(for: nil)
+                    coordinator.showTaskDetail(for: taskToEdit)
                 }
             }
             .alert(
@@ -66,7 +75,8 @@ struct TaskListView: View {
                 .foregroundColor(.gray)
             if viewModel.filter == .all {
                 Button("Add your first task") {
-                    showingAddTask = true
+                    taskToEdit = nil
+                    showingDetail = true
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -74,21 +84,21 @@ struct TaskListView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    private var taskListView: some View {
-        VStack {
-            filterPicker
-            List {
-                ForEach(viewModel.filteredTasks) { task in
-                    TaskRowView(
-                        task: task,
-                        onToggle: { await viewModel.toggleTaskCompletion(task) },
-                        onTap: { showingAddTask = true },
-                        onDelete: { await viewModel.deleteTask(task) }
-                    )
-                }
+    private var taskListContent: some View {
+        List {
+            ForEach(viewModel.filteredTasks) { task in
+                TaskRowView(
+                    task: task,
+                    onToggle: { await viewModel.toggleTaskCompletion(task) },
+                    onTap: {
+                        taskToEdit = task
+                        showingDetail = true
+                    },
+                    onDelete: { await viewModel.deleteTask(task) }
+                )
             }
-            .listStyle(.insetGrouped)
         }
+        .listStyle(.insetGrouped)
     }
     
     private var filterPicker: some View {
