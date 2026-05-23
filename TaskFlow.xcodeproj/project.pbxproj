@@ -13,6 +13,10 @@
 		A1000109 /* UseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000103 /* UseCaseTests.swift */; };
 		A1000110 /* TaskListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000104 /* TaskListViewModelTests.swift */; };
 		A1000111 /* TaskDetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000105 /* TaskDetailViewModelTests.swift */; };
+		A1000200 /* AppCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000204 /* AppCoordinatorTests.swift */; };
+		A1000201 /* AppDependencyContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000205 /* AppDependencyContainerTests.swift */; };
+		A1000202 /* TaskDetailViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000206 /* TaskDetailViewTests.swift */; };
+		A1000203 /* TaskListViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000207 /* TaskListViewTests.swift */; };
 		A1000001 /* TaskFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002 /* TaskFlowApp.swift */; };
 		A1000003 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004 /* TaskListView.swift */; };
 		A1000005 /* TaskDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006 /* TaskDetailView.swift */; };
@@ -56,6 +60,10 @@
 		A1000103 /* UseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UseCaseTests.swift; sourceTree = "<group>"; };
 		A1000104 /* TaskListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModelTests.swift; sourceTree = "<group>"; };
 		A1000105 /* TaskDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewModelTests.swift; sourceTree = "<group>"; };
+		A1000204 /* AppCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorTests.swift; sourceTree = "<group>"; };
+		A1000205 /* AppDependencyContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencyContainerTests.swift; sourceTree = "<group>"; };
+		A1000206 /* TaskDetailViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewTests.swift; sourceTree = "<group>"; };
+		A1000207 /* TaskListViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewTests.swift; sourceTree = "<group>"; };
 		A1000122 /* TaskFlowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TaskFlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -146,6 +154,10 @@
 				A1000103 /* UseCaseTests.swift */,
 				A1000104 /* TaskListViewModelTests.swift */,
 				A1000105 /* TaskDetailViewModelTests.swift */,
+				A1000204 /* AppCoordinatorTests.swift */,
+				A1000205 /* AppDependencyContainerTests.swift */,
+				A1000206 /* TaskDetailViewTests.swift */,
+				A1000207 /* TaskListViewTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -367,6 +379,10 @@
 				A1000109 /* UseCaseTests.swift in Sources */,
 				A1000110 /* TaskListViewModelTests.swift in Sources */,
 				A1000111 /* TaskDetailViewModelTests.swift in Sources */,
+				A1000200 /* AppCoordinatorTests.swift in Sources */,
+				A1000201 /* AppDependencyContainerTests.swift in Sources */,
+				A1000202 /* TaskDetailViewTests.swift in Sources */,
+				A1000203 /* TaskListViewTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
