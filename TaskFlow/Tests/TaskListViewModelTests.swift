@@ -177,6 +177,133 @@ struct TaskListViewModelTests {
 
         #expect(vm.filter == .all)
     }
+
+    // MARK: - Subsequent load (flickering fix)
+
+    @Test("Subsequent load does not set isLoading when tasks exist")
+    func subsequentLoadNoLoading() async {
+        let tasks = [TaskItem(title: "Task")]
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: tasks)
+
+        await vm.loadTasks()
+        #expect(vm.isLoading == false)
+        #expect(!vm.tasks.isEmpty)
+
+        await vm.loadTasks()
+        #expect(vm.isLoading == false)
+    }
+
+    // MARK: - Toggle reverse direction
+
+    @Test("Toggle completed task back to active")
+    func toggleCompletedToActive() async {
+        let task = TaskItem(title: "Task", isCompleted: true)
+        let (vm, _, _, update, _) = makeViewModel(fetchTasks: [task])
+
+        await vm.loadTasks()
+        await vm.toggleTaskCompletion(task)
+
+        #expect(update.called == true)
+        #expect(update.lastTask?.isCompleted == false)
+    }
+
+    // MARK: - Error clearing
+
+    @Test("Successful load clears previous error")
+    func loadClearsPreviousError() async {
+        let (vm, fetch, _, _, _) = makeViewModel(shouldThrowError: true)
+
+        await vm.loadTasks()
+        #expect(vm.errorMessage != nil)
+
+        fetch.shouldThrowError = false
+        fetch.tasksToReturn = [TaskItem(title: "Task")]
+        await vm.loadTasks()
+        #expect(vm.errorMessage == nil)
+    }
+
+    @Test("Successful toggle clears previous error")
+    func toggleClearsPreviousError() async {
+        let task = TaskItem(title: "Task")
+        let (vm, _, _, update, _) = makeViewModel(fetchTasks: [task])
+        update.shouldThrowError = true
+
+        await vm.loadTasks()
+        await vm.toggleTaskCompletion(task)
+        #expect(vm.errorMessage != nil)
+
+        update.shouldThrowError = false
+        await vm.toggleTaskCompletion(task)
+        #expect(vm.errorMessage == nil)
+    }
+
+    @Test("Successful delete clears previous error")
+    func deleteClearsPreviousError() async {
+        let task = TaskItem(title: "Task")
+        let (vm, _, _, _, delete) = makeViewModel(fetchTasks: [task])
+        delete.shouldThrowError = true
+
+        await vm.loadTasks()
+        await vm.deleteTask(task)
+        #expect(vm.errorMessage != nil)
+
+        delete.shouldThrowError = false
+        await vm.deleteTask(task)
+        #expect(vm.errorMessage == nil)
+    }
+
+    // MARK: - Filter switching
+
+    @Test("Switching filters updates filteredTasks dynamically")
+    func filterSwitching() async {
+        let active = TaskItem(title: "Active", isCompleted: false)
+        let done = TaskItem(title: "Done", isCompleted: true)
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: [active, done])
+
+        await vm.loadTasks()
+
+        vm.filter = .all
+        #expect(vm.filteredTasks.count == 2)
+
+        vm.filter = .active
+        #expect(vm.filteredTasks.count == 1)
+        #expect(vm.filteredTasks[0].title == "Active")
+
+        vm.filter = .completed
+        #expect(vm.filteredTasks.count == 1)
+        #expect(vm.filteredTasks[0].title == "Done")
+
+        vm.filter = .all
+        #expect(vm.filteredTasks.count == 2)
+    }
+
+    // MARK: - Sorting
+
+    @Test("Active filter sorts by date descending")
+    func activeSortedByDate() async {
+        let older = TaskItem(title: "Older", isCompleted: false, createdAt: Date(timeIntervalSince1970: 1000))
+        let newer = TaskItem(title: "Newer", isCompleted: false, createdAt: Date(timeIntervalSince1970: 2000))
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: [older, newer])
+
+        await vm.loadTasks()
+        vm.filter = .active
+
+        #expect(vm.filteredTasks[0].title == "Newer")
+        #expect(vm.filteredTasks[1].title == "Older")
+    }
+
+    @Test("Completed filter sorts by date descending")
+    func completedSortedByDate() async {
+        let older = TaskItem(title: "Older", isCompleted: true, createdAt: Date(timeIntervalSince1970: 1000))
+        let newer = TaskItem(title: "Newer", isCompleted: true, createdAt: Date(timeIntervalSince1970: 2000))
+        let (vm, _, _, _, _) = makeViewModel(fetchTasks: [older, newer])
+
+        await vm.loadTasks()
+        vm.filter = .completed
+
+        #expect(vm.filteredTasks[0].title == "Newer")
+        #expect(vm.filteredTasks[1].title == "Older")
+    }
 }
 
 // MARK: - Mocks
