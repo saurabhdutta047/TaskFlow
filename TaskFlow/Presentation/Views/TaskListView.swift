@@ -10,6 +10,7 @@ struct TaskListView: View {
     private let coordinator: AppCoordinator
 
     @State private var sheetItem: TaskDetailSheetItem?
+    @State private var navigationPath = NavigationPath()
 
     private let primaryBlue = Color(red: 0.25, green: 0.35, blue: 0.95)
 
@@ -19,63 +20,69 @@ struct TaskListView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Color(.systemGroupedBackground)
-                .ignoresSafeArea()
+        NavigationStack(path: $navigationPath) {
+            ZStack(alignment: .bottomTrailing) {
+                Color(.systemGroupedBackground)
+                    .ignoresSafeArea()
 
-            if viewModel.isLoading {
-                ProgressView("Loading tasks...")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        headerView
-                        dateSection
+                if viewModel.isLoading {
+                    ProgressView("Loading tasks...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 0) {
+                            headerView
+                            dateSection
 
-                        if !viewModel.tasks.isEmpty {
-                            filterTabs
+                            if !viewModel.tasks.isEmpty {
+                                filterTabs
+                            }
+
+                            if viewModel.tasks.isEmpty {
+                                emptyStateView
+                            } else if viewModel.filteredTasks.isEmpty {
+                                emptyFilterView
+                            } else {
+                                taskCards
+                            }
+
+                            if !viewModel.tasks.isEmpty {
+                                insightsSection
+                            }
+
+                            Spacer(minLength: 80)
                         }
-
-                        if viewModel.tasks.isEmpty {
-                            emptyStateView
-                        } else if viewModel.filteredTasks.isEmpty {
-                            emptyFilterView
-                        } else {
-                            taskCards
-                        }
-
-                        if !viewModel.tasks.isEmpty {
-                            insightsSection
-                        }
-
-                        Spacer(minLength: 80)
                     }
                 }
-            }
 
-            fabButton
-        }
-        .sheet(item: $sheetItem, onDismiss: {
-            Task { await viewModel.loadTasks() }
-        }) { item in
-            NavigationView {
-                coordinator.showTaskDetail(for: item.task)
+                fabButton
             }
-        }
-        .alert(
-            "Error",
-            isPresented: .constant(viewModel.errorMessage != nil),
-            actions: {
-                Button("OK") { viewModel.errorMessage = nil }
-            },
-            message: {
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
+            .navigationBarHidden(true)
+            .navigationDestination(for: TaskItem.self) { task in
+                coordinator.showTaskDetails(for: task)
+            }
+            .sheet(item: $sheetItem, onDismiss: {
+                Task { await viewModel.loadTasks() }
+            }) { item in
+                NavigationView {
+                    coordinator.showTaskDetail(for: item.task)
                 }
             }
-        )
-        .task {
-            await viewModel.loadTasks()
+            .alert(
+                "Error",
+                isPresented: .constant(viewModel.errorMessage != nil),
+                actions: {
+                    Button("OK") { viewModel.errorMessage = nil }
+                },
+                message: {
+                    if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                    }
+                }
+            )
+            .onAppear {
+                Task { await viewModel.loadTasks() }
+            }
         }
     }
 
@@ -164,9 +171,7 @@ struct TaskListView: View {
                 TaskRowView(
                     task: task,
                     onToggle: { await viewModel.toggleTaskCompletion(task) },
-                    onTap: {
-                        sheetItem = TaskDetailSheetItem(task: task)
-                    },
+                    onTap: { navigationPath.append(task) },
                     onDelete: { await viewModel.deleteTask(task) }
                 )
             }
@@ -321,11 +326,9 @@ struct TaskRowView: View {
 
             Spacer()
 
-            if task.isCompleted {
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(.gray.opacity(0.5))
-            }
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundColor(.gray.opacity(0.4))
         }
         .padding(16)
         .background(Color.white)
@@ -335,7 +338,7 @@ struct TaskRowView: View {
         .onTapGesture { onTap() }
         .contextMenu {
             Button(action: { onTap() }) {
-                Label("Edit", systemImage: "pencil")
+                Label("View Details", systemImage: "eye")
             }
             Button(role: .destructive, action: { Task { await onDelete() } }) {
                 Label("Delete", systemImage: "trash")
