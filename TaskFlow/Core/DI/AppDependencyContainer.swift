@@ -47,6 +47,15 @@ final class AppDependencyContainer {
         )
     }
     
+    @MainActor func makeTaskDetailsViewModel(task: TaskItem) -> TaskDetailsViewModel {
+        TaskDetailsViewModel(
+            task: task,
+            fetchTasksUseCase: fetchTasksUseCase,
+            updateTaskUseCase: updateTaskUseCase,
+            deleteTaskUseCase: deleteTaskUseCase
+        )
+    }
+
     // MARK: - Coordinator
     @MainActor
     func makeAppCoordinator() -> AppCoordinator {

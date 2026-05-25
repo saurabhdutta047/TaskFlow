@@ -25,4 +25,10 @@ final class AppCoordinator: Coordinator {
         let view = TaskDetailView(viewModel: viewModel, coordinator: self)
         return AnyView(view)
     }
+
+    func showTaskDetails(for task: TaskItem) -> AnyView {
+        let viewModel = dependencyContainer.makeTaskDetailsViewModel(task: task)
+        let view = TaskDetailsView(viewModel: viewModel, coordinator: self)
+        return AnyView(view)
+    }
 }

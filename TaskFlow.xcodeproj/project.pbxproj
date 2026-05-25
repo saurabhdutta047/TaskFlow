@@ -34,6 +34,10 @@
 		A1000029 /* TaskStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000030 /* TaskStorageService.swift */; };
 		A1000031 /* AppDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000032 /* AppDependencyContainer.swift */; };
 		A1000210 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000211 /* MainTabView.swift */; };
+		A1000300 /* TaskPriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000304 /* TaskPriority.swift */; };
+		A1000301 /* TaskCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000305 /* TaskCategory.swift */; };
+		A1000302 /* TaskDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000306 /* TaskDetailsView.swift */; };
+		A1000303 /* TaskDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000307 /* TaskDetailsViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +45,10 @@
 		A1000004 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		A1000006 /* TaskDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailView.swift; sourceTree = "<group>"; };
 		A1000211 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		A1000304 /* TaskPriority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskPriority.swift; sourceTree = "<group>"; };
+		A1000305 /* TaskCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCategory.swift; sourceTree = "<group>"; };
+		A1000306 /* TaskDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailsView.swift; sourceTree = "<group>"; };
+		A1000307 /* TaskDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailsViewModel.swift; sourceTree = "<group>"; };
 		A1000008 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		A1000010 /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
 		A1000012 /* TaskDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewModel.swift; sourceTree = "<group>"; };
@@ -169,6 +177,8 @@
 			children = (
 				A1000014 /* TaskItem.swift */,
 				A1000016 /* TaskFilter.swift */,
+				A1000304 /* TaskPriority.swift */,
+				A1000305 /* TaskCategory.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -221,6 +231,7 @@
 			children = (
 				A1000010 /* TaskListViewModel.swift */,
 				A1000012 /* TaskDetailViewModel.swift */,
+				A1000307 /* TaskDetailsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -231,6 +242,7 @@
 				A1000002 /* TaskFlowApp.swift */,
 				A1000004 /* TaskListView.swift */,
 				A1000006 /* TaskDetailView.swift */,
+				A1000306 /* TaskDetailsView.swift */,
 				A1000211 /* MainTabView.swift */,
 			);
 			path = Views;
@@ -370,6 +382,10 @@
 				A1000029 /* TaskStorageService.swift in Sources */,
 				A1000031 /* AppDependencyContainer.swift in Sources */,
 				A1000210 /* MainTabView.swift in Sources */,
+				A1000300 /* TaskPriority.swift in Sources */,
+				A1000301 /* TaskCategory.swift in Sources */,
+				A1000302 /* TaskDetailsView.swift in Sources */,
+				A1000303 /* TaskDetailsViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
