@@ -33,12 +33,14 @@
 		A1000027 /* TaskRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000028 /* TaskRepository.swift */; };
 		A1000029 /* TaskStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000030 /* TaskStorageService.swift */; };
 		A1000031 /* AppDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000032 /* AppDependencyContainer.swift */; };
+		A1000210 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000211 /* MainTabView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A1000002 /* TaskFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskFlowApp.swift; sourceTree = "<group>"; };
 		A1000004 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		A1000006 /* TaskDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailView.swift; sourceTree = "<group>"; };
+		A1000211 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		A1000008 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		A1000010 /* TaskListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewModel.swift; sourceTree = "<group>"; };
 		A1000012 /* TaskDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewModel.swift; sourceTree = "<group>"; };
@@ -229,6 +231,7 @@
 				A1000002 /* TaskFlowApp.swift */,
 				A1000004 /* TaskListView.swift */,
 				A1000006 /* TaskDetailView.swift */,
+				A1000211 /* MainTabView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -366,6 +369,7 @@
 				A1000027 /* TaskRepository.swift in Sources */,
 				A1000029 /* TaskStorageService.swift in Sources */,
 				A1000031 /* AppDependencyContainer.swift in Sources */,
+				A1000210 /* MainTabView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
