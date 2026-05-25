@@ -15,8 +15,9 @@ final class AppCoordinator: Coordinator {
     
     func start() -> AnyView {
         let viewModel = dependencyContainer.makeTaskListViewModel()
-        let view = TaskListView(viewModel: viewModel, coordinator: self)
-        return AnyView(view)
+        let taskListView = TaskListView(viewModel: viewModel, coordinator: self)
+        let mainView = MainTabView(taskListView: AnyView(taskListView))
+        return AnyView(mainView)
     }
     
     func showTaskDetail(for task: TaskItem?) -> AnyView {
