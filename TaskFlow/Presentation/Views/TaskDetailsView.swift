@@ -1,5 +1,11 @@
 import SwiftUI
 
+/// Read-only detail view for a single task.
+///
+/// Pushed onto the `NavigationStack` when a task card is tapped in the list.
+/// Displays category badge, title, metadata (due date, priority), and notes.
+/// Provides actions to toggle completion, delete the task, or open the
+/// edit sheet. Auto-pops when the task is deleted.
 struct TaskDetailsView: View {
     @StateObject private var viewModel: TaskDetailsViewModel
     private let coordinator: AppCoordinator

@@ -1,5 +1,10 @@
 import SwiftUI
 
+/// Form view for creating a new task or editing an existing one.
+///
+/// Presented as a modal sheet with Cancel/Save toolbar buttons.
+/// Fields include title, priority selector, notes, due date, and category.
+/// The form auto-dismisses on successful save.
 struct TaskDetailView: View {
     @StateObject private var viewModel: TaskDetailViewModel
     private let coordinator: AppCoordinator

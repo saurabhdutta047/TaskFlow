@@ -1,7 +1,16 @@
 import SwiftUI
 
+/// Slide-out sidebar menu displayed over the task list.
+///
+/// Contains a mock user profile header, navigation items grouped into
+/// MAIN (Tasks, Calendar, Inbox) and ANALYSIS (Productivity Insights,
+/// Categories) sections, plus a footer with Settings, Help & Support,
+/// and Log Out.
 struct SideMenuView: View {
+    /// Controls the open/close state of the menu. Bound to the parent view.
     @Binding var isOpen: Bool
+
+    /// The current number of tasks, shown as a badge on the Tasks menu item.
     let taskCount: Int
 
     private let primaryBlue = Color(red: 0.25, green: 0.35, blue: 0.95)
