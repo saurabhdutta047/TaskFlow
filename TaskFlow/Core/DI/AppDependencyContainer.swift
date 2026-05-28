@@ -56,6 +56,10 @@ final class AppDependencyContainer {
         )
     }
 
+    @MainActor func makeUserProfileViewModel() -> UserProfileViewModel {
+        UserProfileViewModel(fetchTasksUseCase: fetchTasksUseCase)
+    }
+
     // MARK: - Coordinator
     @MainActor
     func makeAppCoordinator() -> AppCoordinator {

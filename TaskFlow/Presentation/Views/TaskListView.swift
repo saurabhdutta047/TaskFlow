@@ -11,6 +11,7 @@ struct TaskListView: View {
 
     @State private var sheetItem: TaskDetailSheetItem?
     @State private var navigationPath = NavigationPath()
+    @State private var isMenuOpen = false
 
     private let primaryBlue = Color(red: 0.25, green: 0.35, blue: 0.95)
 
@@ -21,41 +22,62 @@ struct TaskListView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ZStack(alignment: .bottomTrailing) {
-                Color(.systemGroupedBackground)
-                    .ignoresSafeArea()
+            ZStack {
+                // Main content
+                ZStack(alignment: .bottomTrailing) {
+                    Color(.systemGroupedBackground)
+                        .ignoresSafeArea()
 
-                if viewModel.isLoading {
-                    ProgressView("Loading tasks...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 0) {
-                            headerView
-                            dateSection
+                    if viewModel.isLoading {
+                        ProgressView("Loading tasks...")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 0) {
+                                headerView
+                                dateSection
 
-                            if !viewModel.tasks.isEmpty {
-                                filterTabs
+                                if !viewModel.tasks.isEmpty {
+                                    filterTabs
+                                }
+
+                                if viewModel.tasks.isEmpty {
+                                    emptyStateView
+                                } else if viewModel.filteredTasks.isEmpty {
+                                    emptyFilterView
+                                } else {
+                                    taskCards
+                                }
+
+                                if !viewModel.tasks.isEmpty {
+                                    insightsSection
+                                }
+
+                                Spacer(minLength: 80)
                             }
-
-                            if viewModel.tasks.isEmpty {
-                                emptyStateView
-                            } else if viewModel.filteredTasks.isEmpty {
-                                emptyFilterView
-                            } else {
-                                taskCards
-                            }
-
-                            if !viewModel.tasks.isEmpty {
-                                insightsSection
-                            }
-
-                            Spacer(minLength: 80)
                         }
                     }
+
+                    fabButton
                 }
 
-                fabButton
+                // Side menu overlay
+                if isMenuOpen {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                isMenuOpen = false
+                            }
+                        }
+
+                    HStack(spacing: 0) {
+                        SideMenuView(isOpen: $isMenuOpen, taskCount: viewModel.tasks.count)
+                            .transition(.move(edge: .leading))
+                        Spacer()
+                    }
+                    .ignoresSafeArea()
+                }
             }
             .navigationBarHidden(true)
             .navigationDestination(for: TaskItem.self) { task in
@@ -90,9 +112,15 @@ struct TaskListView: View {
 
     private var headerView: some View {
         HStack {
-            Image(systemName: "line.3.horizontal")
-                .font(.title2)
-                .foregroundColor(.primary)
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    isMenuOpen.toggle()
+                }
+            }) {
+                Image(systemName: "line.3.horizontal")
+                    .font(.title2)
+                    .foregroundColor(.primary)
+            }
 
             Text("Tasks")
                 .font(.title2)

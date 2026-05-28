@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     let taskListView: AnyView
+    let profileView: AnyView
 
     private let primaryBlue = Color(red: 0.25, green: 0.35, blue: 0.95)
 
@@ -25,7 +26,7 @@ struct MainTabView: View {
                     Text("Inbox")
                 }
 
-            PlaceholderTabView(title: "Settings", icon: "gearshape.fill")
+            profileView
                 .tabItem {
                     Image(systemName: "gearshape.fill")
                     Text("Settings")
