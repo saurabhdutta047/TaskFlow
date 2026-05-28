@@ -1,5 +1,10 @@
 import SwiftUI
 
+/// User profile and settings screen displayed in the Settings tab.
+///
+/// Shows a mock user profile (Alex Rivera), real-time productivity stats
+/// derived from persisted tasks, account settings rows, app preferences
+/// (including a functional dark mode toggle), and a sign-out button.
 struct UserProfileView: View {
     @StateObject private var viewModel: UserProfileViewModel
     @AppStorage("isDarkMode") private var isDarkMode = false

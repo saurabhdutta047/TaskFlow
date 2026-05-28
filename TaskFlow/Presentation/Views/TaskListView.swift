@@ -1,10 +1,21 @@
 import SwiftUI
 
+/// Wrapper that gives each add/edit sheet presentation a unique identity.
+///
+/// Using `Identifiable` with `.sheet(item:)` ensures the correct task
+/// (or `nil` for a new task) is captured when the sheet is built.
 struct TaskDetailSheetItem: Identifiable {
     let id = UUID()
+    /// The task to edit, or `nil` when creating a new task.
     let task: TaskItem?
 }
 
+/// The main task list screen.
+///
+/// Displays a scrollable list of task cards with a date header, filter tabs,
+/// an insights card, and a floating action button. The hamburger icon opens
+/// a side menu overlay. Tapping a card pushes the task details screen;
+/// the FAB opens the add-task sheet.
 struct TaskListView: View {
     @StateObject private var viewModel: TaskListViewModel
     private let coordinator: AppCoordinator
@@ -311,10 +322,22 @@ struct TaskListView: View {
 
 // MARK: - Task Row
 
+/// A single task card used inside the task list.
+///
+/// Displays a circular checkbox, the task title (with strikethrough when
+/// completed), creation date, and a chevron. Supports tap to view details,
+/// toggle to mark complete, and a context menu for delete.
 struct TaskRowView: View {
+    /// The task this row represents.
     let task: TaskItem
+
+    /// Called when the user taps the checkbox to toggle completion.
     let onToggle: () async -> Void
+
+    /// Called when the user taps the card body to navigate to details.
     let onTap: () -> Void
+
+    /// Called when the user selects "Delete" from the context menu.
     let onDelete: () async -> Void
 
     private let primaryBlue = Color(red: 0.25, green: 0.35, blue: 0.95)

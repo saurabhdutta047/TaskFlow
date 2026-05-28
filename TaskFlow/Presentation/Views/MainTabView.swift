@@ -1,7 +1,15 @@
 import SwiftUI
 
+/// Root container view that hosts the bottom tab bar navigation.
+///
+/// Presents four tabs: Tasks (the main list), Calendar and Inbox (placeholders),
+/// and Settings (the user profile screen). Child views are injected as
+/// type-erased `AnyView` instances by `AppCoordinator`.
 struct MainTabView: View {
+    /// The fully-configured task list view created by the coordinator.
     let taskListView: AnyView
+
+    /// The fully-configured user profile view created by the coordinator.
     let profileView: AnyView
 
     private let primaryBlue = Color(red: 0.25, green: 0.35, blue: 0.95)
@@ -36,8 +44,14 @@ struct MainTabView: View {
     }
 }
 
+/// A generic placeholder view displayed for tabs that are not yet implemented.
+///
+/// Shows a centered icon, title, and "Coming Soon" label.
 struct PlaceholderTabView: View {
+    /// The tab's display name.
     let title: String
+
+    /// The SF Symbol name for the tab's icon.
     let icon: String
 
     var body: some View {
