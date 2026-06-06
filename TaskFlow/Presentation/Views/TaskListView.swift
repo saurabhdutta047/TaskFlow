@@ -13,8 +13,7 @@ struct TaskDetailSheetItem: Identifiable {
 /// The main task list screen.
 ///
 /// Displays a scrollable list of task cards with a date header, filter tabs,
-/// an insights card, and a floating action button. The hamburger icon opens
-/// a side menu overlay. Tapping a card pushes the task details screen;
+/// an insights card, and a floating action button.Tapping a card pushes the task details screen;
 /// the FAB opens the add-task sheet.
 struct TaskListView: View {
     @StateObject private var viewModel: TaskListViewModel
@@ -22,7 +21,6 @@ struct TaskListView: View {
 
     @State private var sheetItem: TaskDetailSheetItem?
     @State private var navigationPath = NavigationPath()
-    @State private var isMenuOpen = false
 
     private let primaryBlue = Color(red: 0.25, green: 0.35, blue: 0.95)
 
@@ -70,26 +68,7 @@ struct TaskListView: View {
                     }
 
                     fabButton
-                }
-
-                // Side menu overlay
-                if isMenuOpen {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                isMenuOpen = false
-                            }
-                        }
-
-                    HStack(spacing: 0) {
-                        SideMenuView(isOpen: $isMenuOpen, taskCount: viewModel.tasks.count)
-                            .transition(.move(edge: .leading))
-                        Spacer()
-                    }
-                    .ignoresSafeArea()
-                }
-            }
+                }            }
             .navigationBarHidden(true)
             .navigationDestination(for: TaskItem.self) { task in
                 coordinator.showTaskDetails(for: task)
@@ -123,30 +102,11 @@ struct TaskListView: View {
 
     private var headerView: some View {
         HStack {
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    isMenuOpen.toggle()
-                }
-            }) {
-                Image(systemName: "line.3.horizontal")
-                    .font(.title2)
-                    .foregroundColor(.primary)
-            }
-
             Text("Tasks")
                 .font(.title2)
                 .fontWeight(.bold)
 
             Spacer()
-
-            Circle()
-                .fill(primaryBlue.opacity(0.15))
-                .frame(width: 36, height: 36)
-                .overlay(
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 16))
-                        .foregroundColor(primaryBlue)
-                )
         }
         .padding(.horizontal, 20)
         .padding(.top, 12)
