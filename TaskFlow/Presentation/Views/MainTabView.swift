@@ -22,17 +22,17 @@ struct MainTabView: View {
                     Text("Tasks")
                 }
 
-            PlaceholderTabView(title: "Calendar", icon: "calendar")
-                .tabItem {
-                    Image(systemName: "calendar")
-                    Text("Calendar")
-                }
-
-            PlaceholderTabView(title: "Inbox", icon: "tray.fill")
-                .tabItem {
-                    Image(systemName: "tray.fill")
-                    Text("Inbox")
-                }
+//            PlaceholderTabView(title: "Calendar", icon: "calendar")
+//                .tabItem {
+//                    Image(systemName: "calendar")
+//                    Text("Calendar")
+//                }
+//
+//            PlaceholderTabView(title: "Inbox", icon: "tray.fill")
+//                .tabItem {
+//                    Image(systemName: "tray.fill")
+//                    Text("Inbox")
+//                }
 
             profileView
                 .tabItem {
