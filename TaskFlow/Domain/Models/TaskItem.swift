@@ -1,18 +1,19 @@
 import Foundation
+import SwiftData
 
 /// The core domain model representing a single task in the application.
 ///
 /// `TaskItem` holds all the data associated with a user's task, including its
 /// title, completion state, priority, optional notes, due date, and category.
-/// It conforms to `Codable` for persistence, `Identifiable` for SwiftUI list
-/// rendering, and `Hashable` for use with `NavigationPath`.
+/// It conforms to `Identifiable` for SwiftUI list rendering and `Hashable` for
+/// use with `NavigationPath`.
 ///
-/// A custom `Decodable` initializer provides backward compatibility so that
-/// tasks saved before `priority`, `notes`, `dueDate`, and `category` were
-/// introduced can still be decoded without data loss.
-struct TaskItem: Identifiable, Codable, Equatable, Hashable {
+/// This model uses SwiftData for persistence, providing automatic database
+/// management and query capabilities.
+@Model
+final class TaskItem: Identifiable, Hashable {
     /// Unique identifier for the task, generated automatically on creation.
-    let id: UUID
+    var id: UUID
 
     /// The user-facing title describing what needs to be done.
     var title: String
@@ -21,7 +22,7 @@ struct TaskItem: Identifiable, Codable, Equatable, Hashable {
     var isCompleted: Bool
 
     /// The date and time the task was originally created.
-    let createdAt: Date
+    var createdAt: Date
 
     /// The urgency level of the task (low, medium, or high).
     var priority: TaskPriority
@@ -55,21 +56,5 @@ struct TaskItem: Identifiable, Codable, Equatable, Hashable {
         self.notes = notes
         self.dueDate = dueDate
         self.category = category
-    }
-
-    /// Backward-compatible decoder that gracefully handles tasks stored before
-    /// `priority`, `notes`, `dueDate`, and `category` fields were added.
-    ///
-    /// Missing fields fall back to their default values rather than throwing.
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(UUID.self, forKey: .id)
-        title = try container.decode(String.self, forKey: .title)
-        isCompleted = try container.decode(Bool.self, forKey: .isCompleted)
-        createdAt = try container.decode(Date.self, forKey: .createdAt)
-        priority = try container.decodeIfPresent(TaskPriority.self, forKey: .priority) ?? .medium
-        notes = try container.decodeIfPresent(String.self, forKey: .notes) ?? ""
-        dueDate = try container.decodeIfPresent(Date.self, forKey: .dueDate)
-        category = try container.decodeIfPresent(TaskCategory.self, forKey: .category) ?? .personal
     }
 }

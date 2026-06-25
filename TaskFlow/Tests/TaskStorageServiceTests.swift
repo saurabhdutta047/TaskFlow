@@ -1,15 +1,18 @@
 import Testing
 import Foundation
+import SwiftData
 @testable import TaskFlow
 
 @Suite("TaskStorageService")
 struct TaskStorageServiceTests {
 
+    /// Creates a test storage service with an in-memory SwiftData container.
     private func makeService() -> TaskStorageService {
-        let suiteName = "TaskStorageServiceTests-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suiteName)!
-        defaults.removePersistentDomain(forName: suiteName)
-        return TaskStorageService(userDefaults: defaults)
+        let schema = Schema([TaskItem.self])
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        return TaskStorageService(modelContext: context)
     }
 
     @Test("Fetch returns empty array when no tasks stored")

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 /// Central dependency injection container for the application.
 ///
@@ -6,24 +7,37 @@ import Foundation
 /// use cases (created lazily). Provides factory methods that produce
 /// fresh view model instances wired to the shared use cases.
 ///
-/// Usage: Create a single `AppDependencyContainer` at app launch and
-/// pass it to `AppCoordinator`.
+/// Usage: Create a single `AppDependencyContainer` at app launch with
+/// a SwiftData ModelContext and pass it to `AppCoordinator`.
 final class AppDependencyContainer {
-    
+
+    // MARK: - Properties
+
+    /// The SwiftData ModelContext for database operations.
+    private let modelContext: ModelContext
+
+    // MARK: - Initialization
+
+    /// Initializes the dependency container with a SwiftData context.
+    /// - Parameter modelContext: The SwiftData ModelContext to use for persistence.
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+    }
+
     // MARK: - Storage Service
 
-    /// The low-level persistence service (backed by `UserDefaults`).
+    /// The low-level persistence service (backed by SwiftData).
     lazy var taskStorageService: TaskStorageServiceProtocol = {
-        TaskStorageService()
+        TaskStorageService(modelContext: modelContext)
     }()
-    
+
     // MARK: - Repository
 
     /// The task repository that bridges use cases and storage.
     lazy var taskRepository: TaskRepositoryProtocol = {
         TaskRepository(storageService: taskStorageService)
     }()
-    
+
     // MARK: - Use Cases
 
     /// Use case for fetching all persisted tasks.
@@ -45,7 +59,7 @@ final class AppDependencyContainer {
     lazy var deleteTaskUseCase: DeleteTaskUseCase = {
         DeleteTaskUseCaseImpl(repository: taskRepository)
     }()
-    
+
     // MARK: - ViewModel Factories
 
     /// Creates a new `TaskListViewModel` wired to all CRUD use cases.

@@ -5,7 +5,7 @@ import Foundation
 /// This protocol abstracts the underlying persistence mechanism so that
 /// view models and use cases remain decoupled from storage details.
 /// The concrete implementation is `TaskRepository`, which delegates to
-/// a `TaskStorageServiceProtocol` for encoding/decoding.
+/// a `TaskStorageServiceProtocol` that uses SwiftData for persistence.
 ///
 /// All methods are asynchronous and throwing, allowing implementations
 /// to perform I/O without blocking the main thread.

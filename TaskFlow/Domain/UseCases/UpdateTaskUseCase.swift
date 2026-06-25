@@ -8,14 +8,15 @@ protocol UpdateTaskUseCase {
 }
 
 /// Concrete implementation that delegates to a `TaskRepositoryProtocol`.
+/// The repository uses SwiftData for efficient database operations.
 final class UpdateTaskUseCaseImpl: UpdateTaskUseCase {
     private let repository: TaskRepositoryProtocol
-    
+
     /// - Parameter repository: The data source to update the task in.
     init(repository: TaskRepositoryProtocol) {
         self.repository = repository
     }
-    
+
     func execute(_ task: TaskItem) async throws {
         try await repository.updateTask(task)
     }
