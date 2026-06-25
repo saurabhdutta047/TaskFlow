@@ -1,13 +1,14 @@
 import Foundation
+import SwiftData
 
 /// Defines the low-level contract for persisting and retrieving tasks.
 ///
-/// Implementations handle the encoding/decoding of `TaskItem` arrays
+/// Implementations handle the storage and retrieval of `TaskItem` objects
 /// to and from a backing store. The default implementation uses
-/// `UserDefaults` with JSON serialization.
+/// SwiftData for efficient database persistence.
 protocol TaskStorageServiceProtocol {
     /// Reads all tasks from the backing store.
-    /// - Returns: An array of decoded `TaskItem` values, or an empty array if none exist.
+    /// - Returns: An array of `TaskItem` values, or an empty array if none exist.
     func fetchTasks() throws -> [TaskItem]
 
     /// Writes the full task list to the backing store, replacing any previous data.
@@ -15,28 +16,38 @@ protocol TaskStorageServiceProtocol {
     func saveTasks(_ tasks: [TaskItem]) throws
 }
 
-/// `UserDefaults`-backed storage service that serializes tasks as JSON.
+/// SwiftData-backed storage service that manages task persistence.
 ///
 /// This is the default persistence layer used throughout the app.
-/// A custom `UserDefaults` suite can be injected for testing isolation.
+/// It uses SwiftData's ModelContext for efficient database operations.
+/// A custom `ModelContext` can be injected for testing isolation.
 final class TaskStorageService: TaskStorageServiceProtocol {
-    private let userDefaults: UserDefaults
-    private let tasksKey = "tasks"
-    
-    /// - Parameter userDefaults: The `UserDefaults` instance to use. Defaults to `.standard`.
-    init(userDefaults: UserDefaults = .standard) {
-        self.userDefaults = userDefaults
+    private let modelContext: ModelContext
+
+    /// - Parameter modelContext: The SwiftData ModelContext to use for database operations.
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
     }
-    
+
     func fetchTasks() throws -> [TaskItem] {
-        guard let data = userDefaults.data(forKey: tasksKey) else {
-            return []
-        }
-        return try JSONDecoder().decode([TaskItem].self, from: data)
+        var descriptor = FetchDescriptor<TaskItem>()
+        descriptor.sortBy = [SortDescriptor(\.createdAt, order: .reverse)]
+        return try modelContext.fetch(descriptor)
     }
-    
+
     func saveTasks(_ tasks: [TaskItem]) throws {
-        let data = try JSONEncoder().encode(tasks)
-        userDefaults.set(data, forKey: tasksKey)
+        // Delete all existing tasks
+        let deleteDescriptor = FetchDescriptor<TaskItem>()
+        let existingTasks = try modelContext.fetch(deleteDescriptor)
+        for task in existingTasks {
+            modelContext.delete(task)
+        }
+
+        // Insert new tasks
+        for task in tasks {
+            modelContext.insert(task)
+        }
+
+        try modelContext.save()
     }
 }

@@ -8,14 +8,15 @@ protocol FetchTasksUseCase {
 }
 
 /// Concrete implementation that delegates to a `TaskRepositoryProtocol`.
+/// The repository uses SwiftData for efficient database operations.
 final class FetchTasksUseCaseImpl: FetchTasksUseCase {
     private let repository: TaskRepositoryProtocol
-    
+
     /// - Parameter repository: The data source to fetch tasks from.
     init(repository: TaskRepositoryProtocol) {
         self.repository = repository
     }
-    
+
     func execute() async throws -> [TaskItem] {
         return try await repository.fetchTasks()
     }

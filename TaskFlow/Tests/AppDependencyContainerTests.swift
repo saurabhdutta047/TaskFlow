@@ -1,15 +1,25 @@
 import Testing
 import Foundation
+import SwiftData
 @testable import TaskFlow
 
 @Suite("AppDependencyContainer")
 struct AppDependencyContainerTests {
 
+    /// Creates a test dependency container with an in-memory SwiftData context.
+    private func makeContainer() -> AppDependencyContainer {
+        let schema = Schema([TaskItem.self])
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        return AppDependencyContainer(modelContext: context)
+    }
+
     // MARK: - Lazy property identity
 
     @Test("Storage service returns same instance on repeated access")
     func storageServiceSameInstance() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let s1 = container.taskStorageService as AnyObject
         let s2 = container.taskStorageService as AnyObject
         #expect(s1 === s2)
@@ -17,7 +27,7 @@ struct AppDependencyContainerTests {
 
     @Test("Repository returns same instance on repeated access")
     func repositorySameInstance() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let r1 = container.taskRepository as AnyObject
         let r2 = container.taskRepository as AnyObject
         #expect(r1 === r2)
@@ -25,7 +35,7 @@ struct AppDependencyContainerTests {
 
     @Test("FetchTasksUseCase returns same instance on repeated access")
     func fetchUseCaseSameInstance() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let u1 = container.fetchTasksUseCase as AnyObject
         let u2 = container.fetchTasksUseCase as AnyObject
         #expect(u1 === u2)
@@ -33,7 +43,7 @@ struct AppDependencyContainerTests {
 
     @Test("AddTaskUseCase returns same instance on repeated access")
     func addUseCaseSameInstance() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let u1 = container.addTaskUseCase as AnyObject
         let u2 = container.addTaskUseCase as AnyObject
         #expect(u1 === u2)
@@ -41,7 +51,7 @@ struct AppDependencyContainerTests {
 
     @Test("UpdateTaskUseCase returns same instance on repeated access")
     func updateUseCaseSameInstance() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let u1 = container.updateTaskUseCase as AnyObject
         let u2 = container.updateTaskUseCase as AnyObject
         #expect(u1 === u2)
@@ -49,7 +59,7 @@ struct AppDependencyContainerTests {
 
     @Test("DeleteTaskUseCase returns same instance on repeated access")
     func deleteUseCaseSameInstance() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let u1 = container.deleteTaskUseCase as AnyObject
         let u2 = container.deleteTaskUseCase as AnyObject
         #expect(u1 === u2)
@@ -59,8 +69,8 @@ struct AppDependencyContainerTests {
 
     @Test("Different containers produce separate storage services")
     func separateContainersHaveSeparateStorage() {
-        let c1 = AppDependencyContainer()
-        let c2 = AppDependencyContainer()
+        let c1 = makeContainer()
+        let c2 = makeContainer()
         let s1 = c1.taskStorageService as AnyObject
         let s2 = c2.taskStorageService as AnyObject
         #expect(s1 !== s2)
@@ -68,8 +78,8 @@ struct AppDependencyContainerTests {
 
     @Test("Different containers produce separate repositories")
     func separateContainersHaveSeparateRepositories() {
-        let c1 = AppDependencyContainer()
-        let c2 = AppDependencyContainer()
+        let c1 = makeContainer()
+        let c2 = makeContainer()
         let r1 = c1.taskRepository as AnyObject
         let r2 = c2.taskRepository as AnyObject
         #expect(r1 !== r2)
@@ -80,7 +90,7 @@ struct AppDependencyContainerTests {
     @Test("makeTaskListViewModel creates view model with default state")
     @MainActor
     func makeTaskListViewModel() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let vm = container.makeTaskListViewModel()
         #expect(vm.tasks.isEmpty)
         #expect(vm.filter == .all)
@@ -91,7 +101,7 @@ struct AppDependencyContainerTests {
     @Test("makeTaskListViewModel creates independent instances")
     @MainActor
     func makeTaskListViewModelIndependent() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let vm1 = container.makeTaskListViewModel()
         let vm2 = container.makeTaskListViewModel()
         #expect(vm1 !== vm2)
@@ -100,7 +110,7 @@ struct AppDependencyContainerTests {
     @Test("makeTaskDetailViewModel with nil task creates add mode")
     @MainActor
     func makeTaskDetailViewModelAddMode() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let vm = container.makeTaskDetailViewModel(task: nil)
         #expect(vm.title == "")
         #expect(vm.isEditMode == false)
@@ -112,7 +122,7 @@ struct AppDependencyContainerTests {
     @Test("makeTaskDetailViewModel with task creates edit mode")
     @MainActor
     func makeTaskDetailViewModelEditMode() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let task = TaskItem(title: "Edit Me")
         let vm = container.makeTaskDetailViewModel(task: task)
         #expect(vm.title == "Edit Me")
@@ -122,7 +132,7 @@ struct AppDependencyContainerTests {
     @Test("makeTaskDetailViewModel creates independent instances")
     @MainActor
     func makeTaskDetailViewModelIndependent() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let vm1 = container.makeTaskDetailViewModel(task: nil)
         let vm2 = container.makeTaskDetailViewModel(task: nil)
         #expect(vm1 !== vm2)
@@ -131,7 +141,7 @@ struct AppDependencyContainerTests {
     @Test("makeAppCoordinator creates functional coordinator")
     @MainActor
     func makeAppCoordinator() {
-        let container = AppDependencyContainer()
+        let container = makeContainer()
         let coordinator = container.makeAppCoordinator()
         let view = coordinator.start()
         _ = view
