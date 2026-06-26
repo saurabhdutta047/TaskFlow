@@ -28,7 +28,7 @@ was chosen, and *why*.
 - Task priority, notes, due date, and category
 - Read-only task details screen
 - Slide-out side menu and user profile screen
-- Local persistence via `UserDefaults`
+- Local persistence via SwiftData
 
 ## Architecture Overview
 
@@ -53,7 +53,7 @@ the reverse.
                             │ implements
 ┌───────────────────────────┴──────────────────────────────────┐
 │                           Data                                 │
-│   TaskRepository  ──>  TaskStorageService  ──>  UserDefaults   │
+│   TaskRepository  ──>  TaskStorageService  ──>  SwiftData   │
 └──────────────────────────────────────────────────────────────┘
 
          Core / DI: AppDependencyContainer wires everything together
@@ -66,9 +66,8 @@ the reverse.
 - **Testability** — every dependency is expressed as a protocol, so any
   collaborator can be replaced with a mock in unit tests. This is the single
   biggest reason for the protocol-heavy design.
-- **Swappable persistence** — the Domain layer never imports `UserDefaults`. If
-  we move to Core Data / SwiftData / a remote API tomorrow, only the Data layer
-  changes.
+- **Swappable persistence** — the Domain layer never imports SwiftData. If
+  we move to a remote API tomorrow, only the Data layer changes.
 
 ## Layer-by-Layer Decisions
 
@@ -78,12 +77,12 @@ Pure Swift with no UI or storage dependencies. This is the stable core of the
 app.
 
 - **Models** (`TaskItem`, `TaskFilter`, `TaskCategory`, `TaskPriority`)
-  - `TaskItem` conforms to `Codable` (persistence), `Identifiable` (SwiftUI
+  - `TaskItem` is a SwiftData `@Model` class (persistence), `Identifiable` (SwiftUI
     lists), `Equatable`, and `Hashable` (`NavigationPath`).
-  - **Decision:** `TaskItem` ships a *custom `Decodable` initializer* so tasks
+  - **Decision:** SwiftData handles schema evolution automatically, so tasks
     saved before `priority`, `notes`, `dueDate`, and `category` existed can
-    still be decoded. This keeps schema evolution backward-compatible without a
-    migration step — important when persisting raw `Codable` blobs.
+    still be decoded. This keeps schema evolution backward-compatible without
+    manual migration steps.
 - **Repository Protocol** (`TaskRepositoryProtocol`)
   - Defines the data-access contract (`fetchTasks`, `addTask`, `updateTask`,
     `deleteTask`) as `async throws`. The Domain layer owns this *interface*; the
@@ -102,15 +101,15 @@ app.
 
 The only layer that knows *how* data is stored.
 
-- **`TaskStorageService`** — low-level persistence backed by `UserDefaults`,
-  encoding tasks as JSON. Hidden behind `TaskStorageServiceProtocol` so the
+- **`TaskStorageService`** — low-level persistence backed by SwiftData,
+  using ModelContext for database operations. Hidden behind `TaskStorageServiceProtocol` so the
   storage mechanism is mockable and replaceable.
 - **`TaskRepository`** — implements `TaskRepositoryProtocol` by delegating to the
   storage service. It is the bridge between the Domain contract and the concrete
   storage.
 - **Decision:** the two-level split (Repository → StorageService) keeps the
   repository focused on *what* (CRUD semantics) and the storage service on *how*
-  (encoding + `UserDefaults` keys). Swapping `UserDefaults` for a database means
+  (SwiftData ModelContext operations). Swapping storage mechanisms means
   rewriting only `TaskStorageService`.
 
 ### Presentation Layer (`Presentation/`)
@@ -162,8 +161,8 @@ The only layer that knows *how* data is stored.
   is the foundation of the testing strategy.
 - **Error handling** — errors propagate via `throws`; view models catch them and
   surface a user-facing `errorMessage` rather than crashing.
-- **Persistence format** — JSON-encoded `Codable` in `UserDefaults`. Chosen for
-  simplicity; the custom decoder absorbs schema changes.
+- **Persistence format** — SwiftData with automatic schema management. Chosen for
+  efficiency and modern iOS integration; SwiftData handles schema evolution automatically.
 
 ## Data Flow Example
 
@@ -174,7 +173,7 @@ TaskDetailView (user taps Save)
    → TaskDetailViewModel.save()
        → AddTaskUseCase.execute(task)
            → TaskRepository.addTask(task)
-               → TaskStorageService.save(tasks)  → UserDefaults
+               → TaskStorageService.save(tasks)  → SwiftData
    ← sheet dismissed
 TaskListView.onDismiss → TaskListViewModel.loadTasks()  (silent refresh)
    → @Published tasks updates → SwiftUI re-renders the list
@@ -245,8 +244,8 @@ than XCTest.
 - **Why protocols pay off here:** because every dependency is a protocol, tests
   inject lightweight mocks/spies instead of touching real storage. ViewModels,
   use cases, the repository, and the coordinator are all exercised in isolation.
-- **Isolation of `UserDefaults` tests:** storage tests each use a unique
-  `UserDefaults` suite (UUID-named) so Swift Testing's parallel execution can't
+- **Isolation of SwiftData tests:** storage tests each use an in-memory
+  SwiftData container so Swift Testing's parallel execution can't
   let tests interfere with one another.
 - **Coverage** spans Domain (models, use cases), Data (storage, repository),
   and Presentation (view models, view construction, coordinator, DI container).
@@ -272,9 +271,8 @@ Select a simulator or device and press **Cmd + R**. Run tests with **Cmd + U**.
 
 These are conscious trade-offs given the app's scope:
 
-- **`UserDefaults` over a database** — simplest thing that works for small,
-  local data. The repository/storage split means migrating to Core Data /
-  SwiftData touches only the Data layer.
+- **SwiftData over UserDefaults** — provides efficient database operations,
+  automatic change tracking, and better performance for growing datasets. The repository/storage split means swapping storage mechanisms touches only the Data layer.
 - **Use cases are currently thin** — they add a layer of indirection that only
   pays off once real business rules land. They were kept to preserve a clean
   seam for that growth and for testing.
@@ -282,7 +280,7 @@ These are conscious trade-offs given the app's scope:
   a small performance/diagnostics cost; fine at this scale.
 
 Potential enhancements:
-- Core Data / SwiftData persistence and CloudKit sync
+- CloudKit sync for multi-device support
 - Reminders / notifications for due dates
 - Search and richer filtering
 - Replace mock profile data with real user accounts
